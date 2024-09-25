@@ -3,22 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Chat</title>
+  <title>Instagram DM Style Chat</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <!-- 사이드바 (유저 목록) -->
+    <!-- 좌측 사이드바 (유저 목록) -->
     <div class="sidebar">
-      <h2>Online Users</h2>
-      <div id="userList"></div>
+      <div class="header">
+        <h2>Direct Messages</h2>
+      </div>
+      <div id="userList" class="user-list"></div>
     </div>
 
-    <!-- 채팅 영역 -->
+    <!-- 우측 채팅 창 -->
     <div class="chat-area">
+      <div class="chat-header">
+        <h3 id="currentChatUser">Select a User to Chat</h3>
+      </div>
       <div class="messages" id="chatMessages"></div>
-      <div class="message-input">
-        <input id="msgInput" type="text" placeholder="Type a message..." />
+      <div class="message-input-area">
+        <input id="msgInput" type="text" placeholder="Message..." />
         <button id="sendBtn">Send</button>
       </div>
     </div>
@@ -31,6 +36,7 @@
     const chatMessages = document.getElementById('chatMessages');
     const userList = document.getElementById('userList');
     const sendBtn = document.getElementById('sendBtn');
+    const currentChatUser = document.getElementById('currentChatUser');
 
     const username = prompt('Enter your name');
     socket.emit('join', username);
@@ -40,7 +46,11 @@
       userList.innerHTML = '';
       users.forEach(user => {
         const userElement = document.createElement('div');
+        userElement.classList.add('user');
         userElement.textContent = user;
+        userElement.addEventListener('click', () => {
+          currentChatUser.textContent = user;
+        });
         userList.appendChild(userElement);
       });
     });
@@ -57,8 +67,10 @@
     // 수신한 메시지를 표시
     socket.on('chatMessage', (data) => {
       const messageElement = document.createElement('div');
-      messageElement.innerHTML = `<strong>${data.user}:</strong> ${data.message} <small>(${new Date(data.timestamp).toLocaleTimeString()})</small>`;
+      messageElement.classList.add('message');
+      messageElement.innerHTML = `<strong>${data.user}</strong>: ${data.message} <small>${new Date(data.timestamp).toLocaleTimeString()}</small>`;
       chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight; // 자동 스크롤
     });
   </script>
 </body>
